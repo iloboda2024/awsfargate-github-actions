@@ -9,7 +9,7 @@ env:
 
 jobs:
   fargate:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Cloning project source code
       uses: actions/checkout@v2
