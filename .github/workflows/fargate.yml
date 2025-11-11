@@ -6,6 +6,7 @@ env:
   ecscluster: fargatewebapp
   awsaccountid: 965667556928
   awsregion: us-east-1
+  awsvpcsubnet: subnet-0d9e179f467e08c15
 
 jobs:
   fargate:
@@ -34,8 +35,17 @@ jobs:
       shell: pwsh
       run: |
         New-ECRRepository -RepositoryName ${{ env.ecscluster }}
+    - name: Create Amazon ECS Cluster
+      continue-on-error: true
+      shell: pwsh
+      run: |
+        New-ECSCluster -ClusterName ${{ env.ecscluster }}
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         push: true
         tags: ${{ env.awsaccountid }}.dkr.ecr.${{ env.awsregion }}.amazonaws.com/${{ env.ecscluster }}:latest          
+    - name: Create Amazon ECS Fargate Task
+      shell: pwsh
+      run: |
+        New-ECSTask -Cluster ${{ env.ecscluster }} -AwsvpcConfiguration_AssignPublicIp ENABLED -AwsvpcConfiguration_Subnet ${{ env.awsvpcsubnet }} -LaunchType FARGATE -TaskDefinition todowebapp
