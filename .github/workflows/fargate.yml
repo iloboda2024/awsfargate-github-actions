@@ -45,6 +45,10 @@ jobs:
       with:
         push: true
         tags: ${{ env.awsaccountid }}.dkr.ecr.${{ env.awsregion }}.amazonaws.com/${{ env.ecscluster }}:latest          
+    - name: Stop all running ecs fargate tasks
+      shell: pwsh
+      run: |
+        Get-ECSTaskList -Cluster ${{ env.ecscluster }} | % { Stop-ECSTask -Cluster ${{ env.ecscluster }} -Task $PSItem } 
     - name: Create Amazon ECS Fargate Task
       shell: pwsh
       run: |
